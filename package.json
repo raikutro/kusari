@@ -1,13 +1,14 @@
 {
   "name": "kusari",
   "version": "1.0.0",
-  "description": "BERT Tokenizer & Word2Vec Assisted Markov Chain Text Generator",
+  "description": "BERT Tokenizer & Word2Vec Assisted Markov n-gram Language Model",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "node index.js"
+    "test": "node test/sandbox.js",
+    "train": "node train_models.js"
   },
   "author": "raikutro",
   "license": "MIT",
