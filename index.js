@@ -22,9 +22,12 @@ class Kusari {
 			candidateMax: 5000,
 			ngrams: 3,
 			seed: 'banana',
-			top_k: 10,
-			infrequencyMultiplier: 2
+			top_k: 5,
+			infrequencySimiRatio: 0.25,
+			contextFrequencyThreshold: 0.95
 		};
+		this.tokenFrequencies = {};
+		this.tokenCount = 0;
 
 		this.w2v = { words: 0, size: 0 };
 		this.wordVectors = null;
@@ -32,8 +35,7 @@ class Kusari {
 		this.tokenizer = null;
 		this.encodeTokens = null;
 		this.decodeTokens = null;
-		this.tokenFrequencies = {};
-		this.tokenCount = 0;
+		this.tokenRankings = {};
 	}
 
 	async init(tokenizerFile, w2vFile, tokenizedDataFile) {
@@ -48,6 +50,12 @@ class Kusari {
 		let simpleSmoothing = new GoodTuringSmoothing();
 		this.nGram = new NGram(new MultipleFile(tokenizedDataFile).readCorpus(), this.config.ngrams);
 		this.nGram.calculateNGramProbabilitiesSimple(simpleSmoothing);
+
+		let tokenSortable = Object.keys(this.tokenFrequencies).map(t => [t, this.tokenFrequencies[t]]);
+		tokenSortable = tokenSortable.sort((a, b) => b[1] - a[1]);
+		for (let i = 0; i < tokenSortable.length; i++) {
+			this.tokenRankings[tokenSortable[i][0]] = i;
+		}
 
 		await this.syncW2VFile(w2vFile);
 
@@ -134,8 +142,10 @@ class Kusari {
 			// Setup the score format
 			let scores = routes.map(r => [r, 0]);
 
+			const contextTokenIDs = responseTokens.concat(fromTokensIDs);
+			const rewardUnit = contextTokenIDs.length;
 			for (let i = 0; i < scores.length; i++) {
-				let maxScore = fromTokensIDs.length * 3;
+				let maxScore = rewardUnit * 3;
 
 				// Create an ngram
 				let gram = responseTokens.concat([scores[i][0]]).slice(-this.config.ngrams);
@@ -146,19 +156,22 @@ class Kusari {
 					(oldGrams.includes(gram.join('_'))) || // Don't use old ngrams
 					(usedTokens.has(scores[i][0])) // Don't use old tokens
 				) {
-					scores[i][1] -= 1;
+					scores[i][1] -= rewardUnit;
 				}
 
 				// Calculate the probability that this ngram would occur in the dataset.
-				scores[i][1] += this.nGram.getProbability(gram[0], gram[1], gram[2]) * fromTokensIDs.length;
+				scores[i][1] += this.nGram.getProbability(gram[0], gram[1], gram[2]) * rewardUnit;
 
-				// Calculate the similarity to the prompt
-				for(let j = 0; j < fromTokensIDs.length; j++) {
-					let simi = this.similarity(scores[i][0], fromTokensIDs[j]);
-					let infrequencyScore = (1 - this.frequency(scores[i][0])) * this.config.infrequencyMultiplier;
-					scores[i][1] += (simi + infrequencyScore) / (1 + this.config.infrequencyMultiplier);
+				// Calculate the similarity to the prompt and response so far
+				let infrequencyScore = (1 - this.rankedFrequency(scores[i][0])) * this.config.infrequencySimiRatio;
+				for(let j = 0; j < contextTokenIDs.length; j++) {
+					// Skip the check if it passes the frequency threshold (probably a stop word).
+					if(this.rankedFrequency(contextTokenIDs[j]) > this.config.contextFrequencyThreshold) continue;
+					let simi = this.similarity(scores[i][0], contextTokenIDs[j]) * (1 - this.config.infrequencySimiRatio);
+					scores[i][1] += simi + infrequencyScore;
 				}
 
+				// Score should sum to about 3 reward units by this point.
 				// Normalize the score
 				scores[i][1] = scores[i][1] / maxScore;
 			}
@@ -222,6 +235,11 @@ class Kusari {
 
 	frequency(token) {
 		return this.tokenFrequencies[token] / this.tokenCount;
+	}
+
+	rankedFrequency(token) {
+		if(typeof this.tokenRankings[token] === 'undefined') return 0;
+		return 1 - (this.tokenRankings[token] / this.w2v.words);
 	}
 
 	save() {
