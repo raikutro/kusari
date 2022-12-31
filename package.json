@@ -1,7 +1,7 @@
 {
   "name": "kusari",
   "version": "1.0.0",
-  "description": "BERT & Word2Vec Assisted Markov Chain Text Generator",
+  "description": "BERT Tokenizer & Word2Vec Assisted Markov Chain Text Generator",
   "main": "index.js",
   "directories": {
     "test": "test"
