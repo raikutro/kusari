@@ -1,7 +1,7 @@
 <div align="center">
 	<img src="media/logo.svg" alt="Kusari Logo"/>
 	<br>
-	<p>A Markov-chain n-gram Language Model Assisted by a BERT WordPiece Tokenizer by HuggingFace and Word2Vec by Google.</p>
+	<p>A Trigram Markov Language Model Assisted by a <a href="https://github.com/huggingface/tokenizers">BERT WordPiece Tokenizer by 🤗</a> and <a href="https://code.google.com/archive/p/word2vec/">Word2Vec by Google</a>.</p>
 </div>
 ---
 
