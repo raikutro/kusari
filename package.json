@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "node test/sandbox.js",
-    "train": "node train_models.js"
+    "train": "node train_models.js",
+    "postinstall": "cd node-word2vec-win32 && npm run postinstall"
   },
   "author": "raikutro",
   "license": "MIT",

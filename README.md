@@ -5,4 +5,8 @@ Kusari
 
 ---
 
-Start by running `train_models.js`. Look at the comments inside for details on training.
+Start by running `npm run train`. Look at the comments inside `train_models.js` for details on training.
+
+Run `npm run test` to test your model. Look inside `test/sandbox.js` for details on running.
+
+Its output is underwhelming, to say the least.
