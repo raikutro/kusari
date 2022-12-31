@@ -1,0 +1,3 @@
+[submodule "node-word2vec-win32"]
+	path = node-word2vec-win32
+	url = https://github.com/kdeary/node-word2vec-win32

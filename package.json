@@ -1,0 +1,20 @@
+{
+  "name": "kusari",
+  "version": "1.0.0",
+  "description": "BERT & Word2Vec Assisted Markov Chain Text Generator",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node index.js"
+  },
+  "author": "raikutro",
+  "license": "MIT",
+  "dependencies": {
+    "msgpackr": "^1.8.1"
+  },
+  "devDependencies": {
+    "prompt-sync": "^4.2.0"
+  }
+}
