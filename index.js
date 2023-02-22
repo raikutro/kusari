@@ -23,8 +23,8 @@ class Kusari {
 			ngrams: 3,
 			seed: 'banana',
 			top_k: 5,
-			infrequencySimiRatio: 0.25,
-			contextFrequencyThreshold: 0.95
+			infrequencySimiRatio: 0.5,
+			contextFrequencyLimit: 1
 		};
 		this.tokenFrequencies = {};
 		this.tokenCount = 0;
@@ -166,7 +166,7 @@ class Kusari {
 				let infrequencyScore = (1 - this.rankedFrequency(scores[i][0])) * this.config.infrequencySimiRatio;
 				for(let j = 0; j < contextTokenIDs.length; j++) {
 					// Skip the check if it passes the frequency threshold (probably a stop word).
-					if(this.rankedFrequency(contextTokenIDs[j]) > this.config.contextFrequencyThreshold) continue;
+					if(this.rankedFrequency(contextTokenIDs[j]) > this.config.contextFrequencyLimit) continue;
 					let simi = this.similarity(scores[i][0], contextTokenIDs[j]) * (1 - this.config.infrequencySimiRatio);
 					scores[i][1] += simi + infrequencyScore;
 				}

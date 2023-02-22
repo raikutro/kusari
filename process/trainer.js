@@ -46,7 +46,8 @@ const trainTokenizer = async (inputFile, outputFile) => {
 function trainW2VModel(inputFile, outputFile) {
 	return new Promise(async (resolve) => {
 		w2v.word2vec(inputFile, outputFile, {
-			minCount: 1
+			minCount: 1,
+			cbow: 0
 		}, code => {
 			resolve(code);
 		});
